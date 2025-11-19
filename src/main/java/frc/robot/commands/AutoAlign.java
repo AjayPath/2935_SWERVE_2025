@@ -13,27 +13,26 @@ import frc.robot.utils.Pose;
 /**
  * Auto-aligns robot to scoring position in front of AprilTag.
  * 
- * Strategy (following 2056):
- * 1. Use vision to measure current position and update odometry
- * 2. Calculate target scoring pose (distance from tag)
- * 3. Drive using odometry (DriveToPoint)
- * 4. Update odometry with vision after arrival
+ * Strategy:
+ * 1. Update odometry from vision at start
+ * 2. Calculate target pose (distance from tag)
+ * 3. Drive to target using odometry (DriveToPoint)
+ * 4. Update odometry from vision after arrival
  */
 public class AutoAlign extends Command {
   
   private final DriveSubsystem driveSubsystem;
   private final LimelightSubsystem limelightSubsystem;
-  private final double scoringDistance;
+  private final double scoringDistance; // How far from tag to stop (meters)
   
   private DriveToPoint driveCommand;
   private boolean hasCalculatedTarget;
   
   /**
-   * Creates an AutoAlign command.
-   * 
-   * @param drive the drive subsystem
-   * @param limelight the limelight subsystem
-   * @param scoringDistance how far from tag to stop (meters)
+   * Creates AutoAlign command.
+   * @param drive - drive subsystem
+   * @param limelight - limelight subsystem
+   * @param scoringDistance - distance from tag to stop (meters)
    */
   public AutoAlign(DriveSubsystem drive, LimelightSubsystem limelight, double scoringDistance) {
     this.driveSubsystem = drive;
@@ -48,7 +47,7 @@ public class AutoAlign extends Command {
     hasCalculatedTarget = false;
     driveCommand = null;
     
-    // IMPORTANT: Initialize odometry from vision at start
+    // Initialize odometry from vision
     if (limelightSubsystem.hasValidTarget()) {
       double gyroHeading = driveSubsystem.getHeading();
       Pose visionPose = limelightSubsystem.calculateRobotFieldPose(gyroHeading);
@@ -57,22 +56,18 @@ public class AutoAlign extends Command {
         driveSubsystem.setOdom(
             visionPose.GetXValue(),
             visionPose.GetYValue(),
-            visionPose.GetAngleValue()
+            //visionPose.GetAngleValue()
+            gyroHeading
         );
-        System.out.println("AutoAlign: Initialized odometry from vision at (" +
-                           visionPose.GetXValue() + ", " +
-                           visionPose.GetYValue() + ", " +
-                           visionPose.GetAngleValue() + "°)");
       }
     }
   }
   
   @Override
   public void execute() {
-    // Only calculate target pose once at start
+    // Calculate target once
     if (!hasCalculatedTarget) {
       
-      // Check for valid target
       if (!limelightSubsystem.hasValidTarget()) {
         System.out.println("AutoAlign: No valid target");
         return;
@@ -87,10 +82,10 @@ public class AutoAlign extends Command {
         return;
       }
       
-      // Calculate target scoring pose (in front of tag)
+      // Calculate scoring pose in front of tag
       Pose targetPose = calculateScoringPose(tagPose);
       
-      // Create and start DriveToPoint command
+      // Create and start DriveToPoint
       driveCommand = new DriveToPoint(
           driveSubsystem,
           targetPose.GetXValue(),
@@ -100,14 +95,9 @@ public class AutoAlign extends Command {
       
       driveCommand.initialize();
       hasCalculatedTarget = true;
-      
-      System.out.println("AutoAlign: Targeting (" + 
-                         targetPose.GetXValue() + ", " + 
-                         targetPose.GetYValue() + ", " + 
-                         targetPose.GetAngleValue() + "°)");
     }
     
-    // Run the drive command (uses odometry)
+    // Run drive command (uses odometry)
     if (driveCommand != null) {
       driveCommand.execute();
     }
@@ -123,41 +113,24 @@ public class AutoAlign extends Command {
     if (driveCommand != null) {
       driveCommand.end(interrupted);
     }
-    
-    // Update odometry from vision after arrival (2056 approach)
-    if (!interrupted && limelightSubsystem.hasValidTarget()) {
-      double gyroHeading = driveSubsystem.getHeading();
-      Pose visionPose = limelightSubsystem.calculateRobotFieldPose(gyroHeading);
-      
-      if (visionPose != null) {
-        driveSubsystem.setOdom(
-            visionPose.GetXValue(),
-            visionPose.GetYValue(),
-            visionPose.GetAngleValue()
-        );
-        System.out.println("AutoAlign: Updated odometry from vision at end");
-      }
-    }
   }
   
   /**
-   * Calculates target scoring pose in front of the tag.
-   * Robot will be 'scoringDistance' away, facing perpendicular to tag.
-   * 
-   * @param tagPose the AprilTag's field position
+   * Calculates target scoring pose in front of tag.
+   * Robot will be 'scoringDistance' away, facing same direction as tag.
+   * @param tagPose - AprilTag's field position
    * @return target pose for scoring
    */
   private Pose calculateScoringPose(Pose tagPose) {
-    // Get tag's heading (which way it faces)
     double tagHeading = tagPose.GetAngleValue();
     double tagHeadingRad = Math.toRadians(tagHeading);
     
-    // Calculate position 'scoringDistance' in front of tag
+    // Position 'scoringDistance' in front of tag
     // Move backwards along tag's facing direction
     double targetX = tagPose.GetXValue() - scoringDistance * Math.cos(tagHeadingRad);
     double targetY = tagPose.GetYValue() - scoringDistance * Math.sin(tagHeadingRad);
     
-    // Face same direction as tag (perpendicular approach)
+    // Face same direction as tag
     double targetHeading = tagHeading;
     
     return new Pose(targetX, targetY, targetHeading);
