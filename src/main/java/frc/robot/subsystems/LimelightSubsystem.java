@@ -104,7 +104,7 @@ public class LimelightSubsystem extends SubsystemBase {
     double distance = getDistanceFromTag(getTA());
     double tagHeading = tagPose.GetAngleValue();
     double tx = getTX();
-    double fieldAngleDegrees = gyroHeading + tx;
+    double fieldAngleDegrees = gyroHeading - tx;
     double fieldAngleRadians = Math.toRadians(fieldAngleDegrees);
 
     // Convert polar coordinates to cartesian displacement
