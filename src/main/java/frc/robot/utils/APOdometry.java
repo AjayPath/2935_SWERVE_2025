@@ -281,16 +281,4 @@ public class APOdometry {
       SmartDashboard.putNumber("Wheel " + i + " Angle", p.GetAngleValue());
     }
   }
-
-  public void logCenterPose() {
-    Pose center = getPose();
-    Vector robotVel = getVelocity();
-
-    SmartDashboard.putNumber("Center X", center.GetXValue());
-    SmartDashboard.putNumber("Center Y", center.GetYValue());
-    SmartDashboard.putNumber("Center Angle", center.GetAngleValue());
-    SmartDashboard.putNumber("Center Angle Continuous", lastCenter.GetAngleValue());
-    SmartDashboard.putNumber("Speed", robotVel.GetMag());
-    SmartDashboard.putNumber("Direction", robotVel.GetAngle().getDegrees());
-  }
 }

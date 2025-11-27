@@ -8,6 +8,7 @@ import java.util.List;
 
 import com.ctre.phoenix6.StatusSignal;
 import com.ctre.phoenix6.hardware.Pigeon2;
+
 import edu.wpi.first.hal.FRCNetComm.tInstances;
 import edu.wpi.first.hal.FRCNetComm.tResourceType;
 import edu.wpi.first.hal.HAL;
@@ -18,6 +19,7 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import frc.robot.Constants.DriveConstants;
@@ -111,6 +113,11 @@ public class DriveSubsystem extends SubsystemBase {
   public void periodic() {
     // Update custom odometry every cycle (20ms)
     APOdom.update();
+
+    Pose currentPose = APOdom.getPose();
+    SmartDashboard.putNumber("X DS", currentPose.GetXValue());
+    SmartDashboard.putNumber("Y DS", currentPose.GetYValue());
+    SmartDashboard.putNumber("Angle DS", currentPose.GetAngleValue());
   }
 
   // ===========================================================================================

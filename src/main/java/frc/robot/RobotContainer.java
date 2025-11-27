@@ -6,18 +6,16 @@ package frc.robot;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.Constants.OIConstants;
-import frc.robot.commands.AutoAlign;
-import frc.robot.commands.DriveToPoint;
+import frc.robot.commands.AutoAlignToTag;
+import frc.robot.commands.DTP;
 import frc.robot.subsystems.DriveSubsystem;
-import frc.robot.subsystems.LimelightSubsystem;
-import frc.robot.utils.Pose;
+import frc.robot.subsystems.LimeSubsystem;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -29,7 +27,7 @@ public class RobotContainer {
   
   // Subsystems
   private final DriveSubsystem m_robotDrive = new DriveSubsystem();
-  private final LimelightSubsystem m_limelight = new LimelightSubsystem(m_robotDrive);
+  private final LimeSubsystem m_limelight = new LimeSubsystem(m_robotDrive);
 
   // Controllers
   private final XboxController m_driverController = new XboxController(OIConstants.kDriverControllerPort);
@@ -64,27 +62,25 @@ public class RobotContainer {
    * {@link JoystickButton}.
    */
   private void configureButtonBindings() {
+
     new JoystickButton(m_driverController, XboxController.Button.kA.value)
       .whileTrue(
-        new AutoAlign(m_robotDrive, m_limelight, 0.5));
-
-    new JoystickButton(m_driverController, XboxController.Button.kB.value)
-      .whileTrue(
-          new DriveToPoint(m_robotDrive, 2.1, -1.7, 0));
-
-    new JoystickButton(m_driverController, XboxController.Button.kY.value)
-      .whileTrue(
         new SequentialCommandGroup(
-          new DriveToPoint(m_robotDrive, 2.1, -1.7, 0),
-          new AutoAlign(m_robotDrive, m_limelight, 0.5)
+          new DTP(m_robotDrive, 1, 1, 90, 0.05, 3),
+          new DTP(m_robotDrive, 1.5, 0, 0)
         )
       );
 
-    new JoystickButton(m_driverController, XboxController.Button.kX.value)
-      .onTrue(
+    new JoystickButton(m_driverController, XboxController.Button.kY.value)
+      .whileTrue(
         new InstantCommand(() -> m_robotDrive.setOdom(0, 0, 0))
       );
 
+    new JoystickButton(m_driverController, XboxController.Button.kB.value)
+      .whileTrue(
+        new AutoAlignToTag(m_robotDrive, m_limelight)
+      );
+      
   }
 
   /**
@@ -110,20 +106,8 @@ public class RobotContainer {
    *
    * @return the robot's drive subsystem
    */
-  public LimelightSubsystem getLimelight() {
-    return m_limelight;
-  }
+   public LimeSubsystem getLimelight() {
+     return m_limelight;
+   }
 
-  /**
-   * Logs current drive status to SmartDashboard for debugging and monitoring.
-   */
-  public void logDriveStatus() {
-    // Get current odometry pose
-    Pose customPose = m_robotDrive.getCustomPose();
-
-    // Log pose data to dashboard
-    SmartDashboard.putNumber("APOdometry X", customPose.GetXValue());
-    SmartDashboard.putNumber("APOdometry Y", customPose.GetYValue());
-    SmartDashboard.putNumber("APOdometry Angle", customPose.GetAngleValue());
-  }
 }

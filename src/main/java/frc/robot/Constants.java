@@ -88,7 +88,7 @@
     }
 
     public static final class fieldConstants {
-      public static final Pose TAG_1 = new Pose(0, 0, 0);
+      public static final Pose TAG_1 = new Pose(2, 0, 0);
 
       public static Pose getTagPose(int tagID) {
         switch(tagID) {
