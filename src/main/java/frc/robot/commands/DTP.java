@@ -28,15 +28,15 @@ public class DTP extends Command {
   private final double positionTolerance;
   private final double angleTolerance;
 
-  private static final double kDriveP = 0.6;
+  private static final double kDriveP = 0.35;
   private static final double kDriveI = 0;
   private static final double kDriveD = 0;
-  private static final double kMaxDriveSpeed = 0.325;
+  private static final double kMaxDriveSpeed = 1;
 
   private static final double kTurnP = 0.02;
   private static final double kTurnI = 0;
   private static final double kTurnD = 0;
-  private static final double kMaxTurnSpeed = 0.125;
+  private static final double kMaxTurnSpeed = 0.05;
 
   private static final double kTranslationRateLimit = 5;
   private static final double kRotationRateLimit = 3;
@@ -119,13 +119,6 @@ public class DTP extends Command {
 
     driveSubsystem.drive(xVel, yVel, rotationOuput, true);
 
-    SmartDashboard.putNumber("X", currentPose.GetXValue());
-    SmartDashboard.putNumber("Y", currentPose.GetYValue());
-    SmartDashboard.putNumber("Angle", currentPose.GetAngleValue());
-
-    SmartDashboard.putNumber("Current X", currentPose.GetXValue());
-    SmartDashboard.putNumber("Current Y", currentPose.GetYValue());
-    SmartDashboard.putNumber("Current Angle", currentPose.GetAngleValue());
     SmartDashboard.putNumber("Target X", targetPose.GetXValue());
     SmartDashboard.putNumber("Target Y", targetPose.GetYValue());
     SmartDashboard.putNumber("Angle to Target", angleToTarget);

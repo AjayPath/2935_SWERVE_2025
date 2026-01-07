@@ -115,9 +115,9 @@ public class DriveSubsystem extends SubsystemBase {
     APOdom.update();
 
     Pose currentPose = APOdom.getPose();
-    SmartDashboard.putNumber("X DS", currentPose.GetXValue());
-    SmartDashboard.putNumber("Y DS", currentPose.GetYValue());
-    SmartDashboard.putNumber("Angle DS", currentPose.GetAngleValue());
+    SmartDashboard.putNumber("Current X", currentPose.GetXValue());
+    SmartDashboard.putNumber("Current Y", currentPose.GetYValue());
+    SmartDashboard.putNumber("Current Angle", currentPose.GetAngleValue());
   }
 
   // ===========================================================================================
